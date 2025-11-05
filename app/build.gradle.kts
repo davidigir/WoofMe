@@ -51,6 +51,11 @@ dependencies {
     implementation("com.google.accompanist:accompanist-placeholder-material:0.30.1")
     implementation("androidx.navigation:navigation-compose:2.8.0")
     implementation("io.coil-kt:coil-compose:2.6.0")
+    // Librería de Recorte (UCrop)
+    implementation("com.github.yalantis:ucrop:2.2.11")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.transition:transition:1.4.1")
+
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)

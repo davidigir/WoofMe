@@ -1,5 +1,6 @@
 package com.example.myapplication.screen
 
+import android.app.Activity
 import android.view.RoundedCorner
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -81,7 +82,13 @@ import com.google.accompanist.placeholder.material.shimmer
 import com.woofme.woofme.R
 import com.woofme.woofme.viewmodel.ProfileViewModel
 import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import coil.compose.rememberAsyncImagePainter
+import com.woofme.woofme.ui.theme.DarkBlue
+import com.woofme.woofme.ui.theme.LightBlue
+import com.yalantis.ucrop.UCrop
+import java.io.File
 
 
 @Preview
@@ -95,18 +102,73 @@ fun ProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     val profile = uiState.profile
     val selectedItem = uiState.selectedItem
+    val context = LocalContext.current
 
-    val galleryLaucher = rememberLauncherForActivityResult(
-        // The contract remains the same
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        // 2. Use the idiomatic and safe 'let' function to handle the nullable Uri.
-        uri?.let { imageUri ->
-            // Pass the Uri as a String to the ViewModel.
-            viewModel.addImage(imageUri.toString())
+    val options = UCrop.Options().apply {
+        // 🔥 FORZAR LA FORMA CIRCULAR/OVAL
+        setCircleDimmedLayer(true) // Hace que el área fuera del círculo sea opaca/oscura.
+
+        // Opcional: Personalización de la interfaz
+        // ... otras opciones de UI
+    }
+
+
+    val cropLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+            val croppedUri = UCrop.getOutput(result.data!!)
+            if (croppedUri != null) {
+                viewModel.addImage(croppedUri.toString())
+            }
+        }
+    }
+    val cropLauncherProfileImage = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+            val croppedUri = UCrop.getOutput(result.data!!)
+            if (croppedUri != null) {
+                // 5. Pasar la URI final al ViewModel
+
+                viewModel.changeProfileImage(croppedUri.toString())
+            }
         }
     }
 
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { sourceUri ->
+        if (sourceUri != null) {
+
+            val destinationUri = Uri.fromFile(File(context.cacheDir, "cropped_image_${System.currentTimeMillis()}.jpg"))
+
+            val uCrop = UCrop.of(sourceUri, destinationUri)
+                .withAspectRatio(1f, 1f)
+                .withMaxResultSize(1000, 1000)
+
+            cropLauncher.launch(uCrop.getIntent(context))
+        }
+    }
+
+
+    val galleryLauncherProfile = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { sourceUri ->
+        if (sourceUri != null) {
+
+            // 🔥 CORRECCIÓN 2: Usar 'context' para acceder al caché
+            val destinationUri = Uri.fromFile(File(context.cacheDir, "cropped_image_${System.currentTimeMillis()}.jpg"))
+
+            val uCrop = UCrop.of(sourceUri, destinationUri)
+                .withAspectRatio(1f, 1f)
+                .withMaxResultSize(1000, 1000)
+                .withOptions(options)
+
+            // 🔥 CORRECCIÓN 3: Usar 'context' para obtener el Intent
+            cropLauncherProfileImage.launch(uCrop.getIntent(context))
+        }
+    }
 
 
     if (uiState.showDialog) {
@@ -131,7 +193,7 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp) // altura fija de la cabecera
-                    .background(Color(171, 211, 250, 255))
+                    .background(LightBlue)
                     .padding(top = 10.dp, start = 10.dp, end = 10.dp)
             ) {
                 Column(
@@ -141,7 +203,7 @@ fun ProfileScreen(
                     // Círculos de arriba
                     Row(
                         modifier = Modifier
-                            .border(2.dp, Color(0xFF2563EB), shape = RoundedCornerShape(30.dp))) {
+                            .border(2.dp, color= DarkBlue, shape = RoundedCornerShape(30.dp))) {
 
                         repeat(3) {
 //                        Spacer(
@@ -175,7 +237,10 @@ fun ProfileScreen(
 
                 ProfileCircleImage(
                     modifier = Modifier.align(Alignment.BottomCenter),
-                    image = profile.profileImageRes
+                    imageUri = profile.profileImageRes,
+                    onUpdateImageClick = {
+                        galleryLauncherProfile.launch("image/*")
+                    }
                 )
 
             }
@@ -215,14 +280,14 @@ fun ProfileScreen(
                 item{
                     ProfileAddImage(
                         onAddImageClick = {
-                            galleryLaucher.launch("image/*")
+                            galleryLauncher.launch("image/*")
                         }
                     )
                 }
                 itemsIndexed(profile.images) { index, imageUri ->
 
 
-                        ProfileImageInfo(imageUri = imageUri, index = index - 1, viewModel = viewModel)
+                        ProfileImageInfo(imageUri = imageUri, index = index , viewModel = viewModel)
 
                 }
 
@@ -237,7 +302,7 @@ fun ProfileScreen(
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
                 .height(70.dp) // suficiente altura para burbuja + texto
-                .background(Color(0xFFABD3FA))
+                .background(LightBlue)
         ) {
             Row(
                 modifier = Modifier.fillMaxSize(),
@@ -256,7 +321,7 @@ fun ProfileScreen(
                         modifier = Modifier
                             .size(width = 55.dp, height = 30.dp)
                             .background(
-                                color = if (selectedItem == 0) Color(0xFF2563EB) else Color.Transparent,
+                                color = if (selectedItem == 0) DarkBlue else Color.Transparent,
                                 shape = RoundedCornerShape(45.dp)
                             ),
                         contentAlignment = Alignment.Center
@@ -290,7 +355,7 @@ fun ProfileScreen(
                         modifier = Modifier
                             .size(width = 55.dp, height = 30.dp)
                             .background(
-                                color = if (selectedItem == 1) Color(0xFF2563EB) else Color.Transparent,
+                                color = if (selectedItem == 1) DarkBlue else Color.Transparent,
                                 shape = RoundedCornerShape(50.dp)
                             ),
                         contentAlignment = Alignment.Center
@@ -322,7 +387,7 @@ fun ProfileScreen(
                         modifier = Modifier
                             .size(width = 55.dp, height = 30.dp)
                             .background(
-                                color = if (selectedItem == 2) Color(0xFF2563EB) else Color.Transparent,
+                                color = if (selectedItem == 2) DarkBlue else Color.Transparent,
                                 shape = RoundedCornerShape(50.dp)
                             ),
                         contentAlignment = Alignment.Center
@@ -395,7 +460,7 @@ fun CustomDialog(
                 },
                 dismissButton = {
                     TextButton(onClick = onDismiss) {
-                        Text(text = "Cancelar", color = Color(0xFF2563EB))
+                        Text(text = "Cancelar", color = DarkBlue)
                     }
                 }
             )
@@ -408,9 +473,14 @@ fun CustomDialog(
 @Composable
 fun ProfileCircleImage(
     modifier: Modifier = Modifier,
-    image: Int
+    imageUri: String,
+    onUpdateImageClick: () -> Unit
 
     ){
+    val uri = remember(imageUri){Uri.parse(imageUri)}
+    val painter = rememberAsyncImagePainter(
+        model = uri,
+    )
 
     Box(
         modifier = modifier
@@ -423,7 +493,7 @@ fun ProfileCircleImage(
         // Imagen circular
         Box(modifier = Modifier.padding( 5.dp)){
             Image(
-                painter = painterResource(image),
+                painter = painter,
                 contentDescription = null,
                 modifier = Modifier
                     .size(128.dp) // cuadrado
@@ -437,6 +507,9 @@ fun ProfileCircleImage(
                 contentDescription = "Editar",
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
+                    .clickable{
+                        onUpdateImageClick()
+                    }
                     .size(36.dp) // tamaño del icono
                     .offset(y = -7.dp, x = -4.dp)
                     .border(3.dp, Color(171, 211, 250, 255), shape = CircleShape)
@@ -542,6 +615,7 @@ fun ProfileImageInfo(
             .aspectRatio(4f / 3f)
             .clickable(onClick = {
                 viewModel.toggleDialog(true, index)
+
             })
     )
 }

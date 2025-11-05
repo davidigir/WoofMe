@@ -72,4 +72,17 @@ class ProfileViewModel : ViewModel() {
             )
         }
     }
+
+    fun changeProfileImage(imageUri: String) {
+        _uiState.update { currentState ->
+            val currentProfileImage = currentState.profile.profileImageRes
+
+            // 2. Insertar la nueva URI (al principio o al final, según prefieras)
+            val updatedProfileImage = imageUri
+
+            currentState.copy(
+                profile = currentState.profile.copy(profileImageRes = updatedProfileImage)
+            )
+        }
+    }
 }
