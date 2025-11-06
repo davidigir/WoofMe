@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.screen.ProfileScreen
 import com.woofme.woofme.ui.theme.WoofMeTheme
+import com.woofme.woofme.view.ChatScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +22,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             WoofMeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ProfileScreen(
+                    ChatScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

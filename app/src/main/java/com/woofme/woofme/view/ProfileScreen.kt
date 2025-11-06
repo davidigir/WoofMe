@@ -105,7 +105,6 @@ fun ProfileScreen(
     val context = LocalContext.current
 
     val options = UCrop.Options().apply {
-        // 🔥 FORZAR LA FORMA CIRCULAR/OVAL
         setCircleDimmedLayer(true) // Hace que el área fuera del círculo sea opaca/oscura.
 
         // Opcional: Personalización de la interfaz
@@ -606,6 +605,7 @@ fun ProfileImageInfo(
     val painter = rememberAsyncImagePainter(
         model = uri,
     )
+    Card {
 
     Image(
         painter = painter,
@@ -618,4 +618,6 @@ fun ProfileImageInfo(
 
             })
     )
+    }
+
 }
