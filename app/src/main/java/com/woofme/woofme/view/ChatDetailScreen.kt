@@ -2,6 +2,7 @@ package com.example.myapplication.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -38,12 +41,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.woofme.woofme.R
+import com.woofme.woofme.ui.theme.LightBlue
+import com.woofme.woofme.viewmodel.ChatDetailViewModel
 import org.w3c.dom.Text
 
-@Preview
 @Composable
-fun ChatDetailScreen(modifier: Modifier = Modifier) {
+fun ChatDetailScreen(
+    modifier: Modifier = Modifier,
+    viewModel: ChatDetailViewModel = viewModel(),
+    onNavigate: ()->Unit
+
+) {
+
+    val state by viewModel.uiState.collectAsState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -52,56 +65,12 @@ fun ChatDetailScreen(modifier: Modifier = Modifier) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 40.dp)
-                .clip(RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp))
-                .background(Color(0xFFABD3FA)) // mismo color que (171,211,250)
-                .padding(top = 20.dp)
+
         ) {
+            TopBarInfo(modifier, onNavigate)
+
 
             //Info de chat de la persona q estas hablando
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(70.dp)
-
-                    .padding(horizontal = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Ajustes",
-                    modifier = Modifier.size(24.dp)
-                )
-                Image(
-                    painter = painterResource(R.drawable.perro3),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(48.dp) // cuadrado
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop // ajusta el recorte
-                )
-                Row(
-                    modifier = modifier.weight(1f),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-
-                    Column {
-
-                        Text(
-                            "Pepe",
-                            color = Color(13, 27, 42, 255),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
-
-                        Text("Online", fontSize = 14.sp, color = Color(107, 114, 128, 255))
-
-                    }
-
-                }
-
-            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -146,6 +115,60 @@ fun ChatDetailScreen(modifier: Modifier = Modifier) {
         }
     }
 }
+@Composable
+fun TopBarInfo(
+    modifier: Modifier = Modifier,
+    onNavigate: ()->Unit
+){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(90.dp)
+            .clip(RoundedCornerShape(bottomStart = 25.dp, bottomEnd = 25.dp))
+            .background(LightBlue)
+            .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = "Volver a atrás",
+            modifier = Modifier
+                .size(24.dp)
+                // Ahora no necesita .align porque la Row completa está centrada
+                .clickable {
+                    onNavigate()
+                }
+        )
+        Image(
+            painter = painterResource(R.drawable.perro3),
+            contentDescription = null,
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
+        )
+        Row(
+            modifier = modifier.weight(1f),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Column {
+                Text(
+                    "Pepe",
+                    color = Color(13, 27, 42, 255),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+                Text("Online", fontSize = 14.sp, color = Color(107, 114, 128, 255))
+            }
+
+        }
+
+    }
+}
+
+
 
 @Composable
 fun ChatBubble(text: String, isUser: Boolean) {

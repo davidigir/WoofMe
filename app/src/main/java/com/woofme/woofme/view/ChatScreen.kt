@@ -1,41 +1,47 @@
 package com.woofme.woofme.view
 
-import android.net.Uri
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.woofme.woofme.viewmodel.ChatViewModel
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.woofme.woofme.model.Chat
 import com.woofme.woofme.ui.theme.DarkBlue
 import com.woofme.woofme.ui.theme.LightBlue
+import com.woofme.woofme.viewmodel.ChatTabEnum
 
 @Composable
 fun ChatScreen(
     modifier: Modifier = Modifier,
-    viewModel: ChatViewModel = viewModel()
+    viewModel: ChatViewModel = viewModel(),
+    onNavigate: ()->Unit
 ){
-
+    //estado de la screen en el viewModel
     val state by viewModel.uiState.collectAsState()
 
     Column(
@@ -44,29 +50,49 @@ fun ChatScreen(
             .background(Color(255, 255, 255))
             .padding(20.dp)
     ) {
+
+        //titulo
+        Text("Chats", color = DarkBlue, fontWeight = FontWeight.Bold, fontSize = 24.sp, modifier = Modifier.padding(10.dp))
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+
+        //Selector de Busqueda
+        SearchBar(
+            modifier = Modifier,
+            searchQuery = state.searchQuery,
+            onQueryChange = viewModel::onSearchQueryChanged
+
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
         // --- Selector de Pestañas ---
         TabSelector(
             selectedTab = state.selectedTab, // Usa el estado
-            onTabSelected = viewModel::onTabSelected // Llama al evento del ViewModel
+            onTabSelected = viewModel::onTabSelected
         )
+
+
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // --- Lista de Chats ---
-        Column {
-            state.chatList.forEach { chat ->
-                ChatItemRow(
-                    chat = chat,
-                    onClick = { viewModel.onChatClicked(chat) } // Llama al evento del ViewModel
-                )
-            }
+        LazyColumn {items(state.chatList){
+            chat->
+            ChatItemRow(
+                chat = chat,
+                onClick = { onNavigate() }
+            )
+
+        }
+
         }
     }
 }
 
-// Composable para el selector de pestañas (puede ser extraído)
 @Composable
-fun TabSelector(selectedTab: Int, onTabSelected: (Int) -> Unit) {
+fun TabSelector(selectedTab: ChatTabEnum, onTabSelected: (ChatTabEnum) -> Unit) {
     Row(
         modifier = Modifier
             .padding(10.dp)
@@ -76,23 +102,23 @@ fun TabSelector(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     ) {
         // Tab 1: Chats
         TabButton(
-            text = "Chats",
-            isSelected = selectedTab == 1,
-            onClick = { onTabSelected(1) },
+            text = "Todos",
+            isSelected = selectedTab == ChatTabEnum.ALL,
+            onClick = { onTabSelected(ChatTabEnum.ALL) },
             modifier = Modifier.weight(1f)
         )
         // Tab 2: Grupos
         TabButton(
             text = "Grupos",
-            isSelected = selectedTab == 2,
-            onClick = { onTabSelected(2) },
+            isSelected = selectedTab == ChatTabEnum.GROUPS,
+            onClick = { onTabSelected(ChatTabEnum.GROUPS) },
             modifier = Modifier.weight(1f)
         )
         // Tab 3: Contactos
         TabButton(
             text = "Contactos",
-            isSelected = selectedTab == 3,
-            onClick = { onTabSelected(3) },
+            isSelected = selectedTab == ChatTabEnum.CONTACTS,
+            onClick = { onTabSelected(ChatTabEnum.CONTACTS) },
             modifier = Modifier.weight(1f)
         )
     }
@@ -121,7 +147,7 @@ fun TabButton(
     }
 }
 
-// Composable para una fila de chat (para reusabilidad)
+// Composable para una fila de chat ()
 @Composable
 fun ChatItemRow(chat: Chat, onClick: () -> Unit, modifier: Modifier = Modifier) {
 
@@ -169,10 +195,47 @@ fun ChatItemRow(chat: Chat, onClick: () -> Unit, modifier: Modifier = Modifier) 
     }
 }
 
-// Preview solo para la vista
-@Preview(showBackground = true)
 @Composable
-fun ChatScreenPreview() {
-    // En la preview, puedes instanciar el ViewModel o usar uno falso si es muy complejo
-    ChatScreen()
+fun SearchBar(modifier: Modifier = Modifier,
+              searchQuery: String,
+              onQueryChange: (String) -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+
+    ){
+
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = onQueryChange,
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search Icon"
+                    )
+                },
+
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                ),
+                modifier = Modifier.fillMaxWidth().border(
+                    BorderStroke(2.dp, LightBlue),
+                    shape = CircleShape
+                )
+            )
+
+    }
+
+
+
+
 }
+
+
+
+

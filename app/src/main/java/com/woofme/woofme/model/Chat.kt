@@ -8,7 +8,7 @@ data class Chat(
     val lastMessage: String,
     val lastMessageTime: String,
     val profileImageRes: String,
-    val typeChat: ChatType //
+    val typeChat: ChatType, //si es grupo o contacto
 )
 
 object ChatDataMock {

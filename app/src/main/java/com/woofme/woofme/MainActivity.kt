@@ -11,7 +11,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.screen.ProfileScreen
+import com.woofme.woofme.common.BottomBar
+import com.woofme.woofme.navigation.AppNavHost
 import com.woofme.woofme.ui.theme.WoofMeTheme
 import com.woofme.woofme.view.ChatScreen
 
@@ -21,28 +25,27 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WoofMeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ChatScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                WoofMeApp()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun WoofMeApp() {
+    val navController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
     WoofMeTheme {
-        Greeting("Android")
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            bottomBar = {
+                BottomBar(navController = navController)
+            }
+        ) { innerPadding ->
+            AppNavHost(
+                navController = navController,
+                modifier = Modifier.padding(innerPadding)
+            )
+        }
     }
 }

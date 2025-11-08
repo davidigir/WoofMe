@@ -56,6 +56,12 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.transition:transition:1.4.1")
 
+    //Iconos
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+
+    //Navegacion
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)

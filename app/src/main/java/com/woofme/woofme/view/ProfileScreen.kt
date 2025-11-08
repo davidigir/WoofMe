@@ -84,7 +84,9 @@ import com.woofme.woofme.viewmodel.ProfileViewModel
 import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.woofme.woofme.common.BottomBar
 import com.woofme.woofme.ui.theme.DarkBlue
 import com.woofme.woofme.ui.theme.LightBlue
 import com.yalantis.ucrop.UCrop
@@ -293,120 +295,8 @@ fun ProfileScreen(
             }
 
         }
-        Spacer(modifier = Modifier.padding(20.dp))
 
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .height(70.dp) // suficiente altura para burbuja + texto
-                .background(LightBlue)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Iconos uno a uno
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable {
-                            viewModel.selectItem(0)
-                            },
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(width = 55.dp, height = 30.dp)
-                            .background(
-                                color = if (selectedItem == 0) DarkBlue else Color.Transparent,
-                                shape = RoundedCornerShape(45.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Default.Home,
-                            contentDescription = "Home",
-                            tint = if (selectedItem == 0) Color.White else Color.Gray,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        "Inicio",
-                        color = if (selectedItem == 0) Color.Gray else Color.Gray,
-                        fontWeight = if (selectedItem == 0) FontWeight.Bold else FontWeight.Normal
-
-                    )
-                }
-
-
-
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { viewModel.selectItem(0)},
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(width = 55.dp, height = 30.dp)
-                            .background(
-                                color = if (selectedItem == 1) DarkBlue else Color.Transparent,
-                                shape = RoundedCornerShape(50.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Default.Face,
-                            contentDescription = "Perfil",
-                            tint = if (selectedItem == 1) Color.White else Color.Gray,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        "Perfil",
-                        color = if (selectedItem == 1) Color.White else Color.Gray,
-                        fontWeight = if (selectedItem == 1) FontWeight.Bold else FontWeight.Normal
-
-
-                    )
-                }
-
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { viewModel.selectItem(0)},
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(width = 55.dp, height = 30.dp)
-                            .background(
-                                color = if (selectedItem == 2) DarkBlue else Color.Transparent,
-                                shape = RoundedCornerShape(50.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Default.Settings,
-                            contentDescription = "Ajustes",
-                            tint = if (selectedItem == 2) Color.White else Color.Gray,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        "Ajustes",
-                        color = if (selectedItem == 2) Color.White else Color.Gray,
-                        fontWeight = if (selectedItem == 2) FontWeight.Bold else FontWeight.Normal
-                    )
-                }
-            }
-        }
     }
 
 
