@@ -1,7 +1,9 @@
 package com.example.myapplication.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -21,8 +25,12 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -46,6 +54,10 @@ import com.woofme.woofme.R
 import com.woofme.woofme.ui.theme.LightBlue
 import com.woofme.woofme.viewmodel.ChatDetailViewModel
 import org.w3c.dom.Text
+import java.time.LocalTime
+import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalUnit
+import kotlin.time.DurationUnit
 
 @Composable
 fun ChatDetailScreen(
@@ -71,50 +83,65 @@ fun ChatDetailScreen(
 
 
             //Info de chat de la persona q estas hablando
-            Column(
+            LazyColumn (
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .padding(20.dp), verticalArrangement = Arrangement.Top
-            ) {
-                Row(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth()
+            ) {items(state.messageList)
+            { message->
 
-
-                ) {
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    Text(
-                        "eqwqwe",
-                        modifier = Modifier
-                            .clip(
-                                RoundedCornerShape(
-                                    topStartPercent = 50,
-                                    topEndPercent = 50,
-                                    bottomStartPercent = 0,
-                                    bottomEndPercent = 50
-                                )
-                            )
-                            .background(Color(0xFF2563EB)) // rojo con transparencia
-                            .padding(horizontal = 12.dp, vertical = 6.dp), // padding interno
-                        color = Color.White // texto más legible
-                    )
-                }
-                ChatBubble("qweeqw", true)
-                ChatBubble("qweeqw", false)
+                ChatBubble(text = message.text, isUser = message.isUser, hour = message.hour)
+            }
 
 
 
             }
             //Enviar mensaje
-
+            TextFieldSendMessage({ viewModel.sendMessage() }, viewModel)
+            Spacer(modifier = Modifier.height(10.dp))
 
 
         }
     }
 }
+
+@Composable
+fun TextFieldSendMessage(sendMessage: () -> Unit, viewModel: ChatDetailViewModel){
+    val state = viewModel.uiState.collectAsState()
+
+    Row {
+
+    OutlinedTextField(
+        value = state.value.inputMessage,
+        onValueChange = { viewModel.onMessageTextChanged(it) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search Icon"
+            )
+        },
+
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color.Transparent,
+            unfocusedBorderColor = Color.Transparent,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+        ),
+        modifier = Modifier
+            .padding(horizontal = 5.dp)
+            .border(
+                BorderStroke(2.dp, LightBlue),
+                shape = CircleShape
+            )
+    )
+    Text("Enviar", modifier = Modifier.clickable{ sendMessage()})
+
+    }
+
+
+}
+
 @Composable
 fun TopBarInfo(
     modifier: Modifier = Modifier,
@@ -171,14 +198,12 @@ fun TopBarInfo(
 
 
 @Composable
-fun ChatBubble(text: String, isUser: Boolean) {
+fun ChatBubble(text: String, isUser: Boolean, hour: LocalTime) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
         if (isUser) Spacer(modifier = Modifier.weight(1f))
-
-        Text(
-            "eqwqwe",
+        Box(
             modifier = Modifier
                 .padding(8.dp)
                 .clip(
@@ -190,15 +215,34 @@ fun ChatBubble(text: String, isUser: Boolean) {
                     )
                 )
                 .background(
-                    if(!isUser)
-                    Color(0xFF3E527D)
+                    if (!isUser)
+                        Color(0xFF3E527D)
                     else
                         Color(0xFF2563EB)
 
                 )
                 .padding(horizontal = 12.dp, vertical = 6.dp),
+        ){
+
+        Text(
+            text = "${text}",
+
             color = Color.White
         )
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Text(
+                    text = "${hour.truncatedTo(ChronoUnit.MINUTES)}",
+                    color = Color.White,
+                    fontSize = 12.sp
+                )
+            }
+        }
+
+
+
 
         if (!isUser) Spacer(modifier = Modifier.weight(1f))
     }
