@@ -28,8 +28,9 @@ class ChatDetailViewModel: ViewModel(){
         _uiState.value = _uiState.value.copy(messageList = initialMessages)
     }
     fun sendMessage(){
+        val text = _uiState.value.inputMessage.trimEnd().trimStart()
+        if (text.isEmpty()) {return}
         val currentMessages = _uiState.value.messageList
-        val text = _uiState.value.inputMessage
         val message: Message = Message(text= text, hour = LocalTime.now(), isUser = true)
         _uiState.update{
             currentState->

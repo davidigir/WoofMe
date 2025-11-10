@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.screen.ChatDetailScreen
+import com.example.myapplication.screen.HomeScreen
 import com.example.myapplication.screen.ProfileScreen
 import com.woofme.woofme.view.ChatScreen
 
@@ -15,7 +16,7 @@ import com.woofme.woofme.view.ChatScreen
 fun AppNavHost(modifier: Modifier = Modifier, navController: NavHostController){
     NavHost(
         navController = navController,
-        startDestination = ScreenRoutes.ChatList,
+        startDestination = ScreenRoutes.Home,
         modifier = modifier
     ){
         composable(ScreenRoutes.ChatList){
@@ -35,6 +36,9 @@ fun AppNavHost(modifier: Modifier = Modifier, navController: NavHostController){
             )
 
 
+        }
+        composable(ScreenRoutes.Home) {
+            HomeScreen()
         }
 
 

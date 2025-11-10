@@ -10,31 +10,39 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -51,9 +60,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.woofme.woofme.R
+import com.woofme.woofme.ui.theme.DarkBlue
 import com.woofme.woofme.ui.theme.LightBlue
 import com.woofme.woofme.viewmodel.ChatDetailViewModel
 import org.w3c.dom.Text
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalUnit
@@ -63,11 +74,17 @@ import kotlin.time.DurationUnit
 fun ChatDetailScreen(
     modifier: Modifier = Modifier,
     viewModel: ChatDetailViewModel = viewModel(),
-    onNavigate: ()->Unit
+    onNavigate: () -> Unit
 
 ) {
-
     val state by viewModel.uiState.collectAsState()
+    val listState = rememberLazyListState() //Esto es para q la lista autoscrolee
+    LaunchedEffect(state.messageList) {
+        if (state.messageList.isNotEmpty()) {
+            listState.animateScrollToItem(state.messageList.size - 1)
+        }
+
+    }
 
     Box(
         modifier = Modifier
@@ -83,17 +100,18 @@ fun ChatDetailScreen(
 
 
             //Info de chat de la persona q estas hablando
-            LazyColumn (
+            LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(20.dp), verticalArrangement = Arrangement.Top
-            ) {items(state.messageList)
-            { message->
+                    .padding(20.dp), verticalArrangement = Arrangement.Top,
+            ) {
+                items(state.messageList)
+                { message ->
 
-                ChatBubble(text = message.text, isUser = message.isUser, hour = message.hour)
-            }
-
+                    ChatBubble(text = message.text, isUser = message.isUser, hour = message.hour)
+                }
 
 
             }
@@ -107,35 +125,57 @@ fun ChatDetailScreen(
 }
 
 @Composable
-fun TextFieldSendMessage(sendMessage: () -> Unit, viewModel: ChatDetailViewModel){
+fun TextFieldSendMessage(sendMessage: () -> Unit, viewModel: ChatDetailViewModel) {
     val state = viewModel.uiState.collectAsState()
 
-    Row {
 
-    OutlinedTextField(
-        value = state.value.inputMessage,
-        onValueChange = { viewModel.onMessageTextChanged(it) },
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search Icon"
-            )
-        },
-
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.Transparent,
-            unfocusedBorderColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-        ),
+    Row(
         modifier = Modifier
-            .padding(horizontal = 5.dp)
-            .border(
-                BorderStroke(2.dp, LightBlue),
-                shape = CircleShape
-            )
-    )
-    Text("Enviar", modifier = Modifier.clickable{ sendMessage()})
+            .fillMaxWidth()
+            .height(56.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        OutlinedTextField(
+            value = state.value.inputMessage,
+            onValueChange = { viewModel.onMessageTextChanged(it) },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search Icon"
+                )
+            },
+
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+            ),
+            modifier = Modifier
+                .padding(horizontal = 5.dp)
+                .weight(1f)
+                .border(
+                    BorderStroke(2.dp, LightBlue),
+                    shape = CircleShape
+                )
+        )
+        Box(
+            modifier = Modifier
+                .aspectRatio(1F)
+                .clip(CircleShape)
+                .background(DarkBlue)
+                .padding(2.dp)
+                .fillMaxHeight(),
+            contentAlignment = Alignment.Center
+
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Send,
+                contentDescription = "Send",
+                tint = Color.White,
+                modifier = Modifier.clickable { sendMessage() })
+        }
 
     }
 
@@ -145,8 +185,8 @@ fun TextFieldSendMessage(sendMessage: () -> Unit, viewModel: ChatDetailViewModel
 @Composable
 fun TopBarInfo(
     modifier: Modifier = Modifier,
-    onNavigate: ()->Unit
-){
+    onNavigate: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -196,55 +236,54 @@ fun TopBarInfo(
 }
 
 
-
+@Preview()
 @Composable
-fun ChatBubble(text: String, isUser: Boolean, hour: LocalTime) {
-    Row(
-        modifier = Modifier.fillMaxWidth()
+fun ChatBubble(text: String = "HOla", isUser: Boolean = true, hour: LocalTime = LocalTime.now()) {
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = if (isUser) Alignment.CenterEnd else Alignment.CenterStart
     ) {
-        if (isUser) Spacer(modifier = Modifier.weight(1f))
-        Box(
+        Column(
+            horizontalAlignment = Alignment.End,
             modifier = Modifier
+                .wrapContentWidth()
                 .padding(8.dp)
                 .clip(
                     RoundedCornerShape(
-                        topStartPercent = 50,
-                        topEndPercent = 50,
-                        bottomStartPercent = if (isUser) 50 else 0,
-                        bottomEndPercent = if (isUser) 0 else 50
+                        bottomStart = 15.dp,
+                        bottomEnd = 15.dp,
+                        topStart= if (isUser) 15.dp else 0.dp,
+                        topEnd = if (isUser) 0.dp else 15.dp
                     )
                 )
                 .background(
-                    if (!isUser)
-                        Color(0xFF3E527D)
-                    else
-                        Color(0xFF2563EB)
-
+                    if (!isUser) Color(0xFF3E527D) else Color(0xFF2563EB)
                 )
-                .padding(horizontal = 12.dp, vertical = 6.dp),
-        ){
+                .padding(horizontal = 12.dp, vertical = 6.dp)
 
-        Text(
-            text = "${text}",
+        ) {
 
-            color = Color.White
-        )
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.BottomEnd
-            ) {
-                Text(
-                    text = "${hour.truncatedTo(ChronoUnit.MINUTES)}",
-                    color = Color.White,
-                    fontSize = 12.sp
-                )
-            }
+
+            Text(
+                text = text,
+                color = Color.White,
+                modifier = Modifier.align(Alignment.Start)
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+
+            Text(
+                text = hour.truncatedTo(ChronoUnit.MINUTES).toString(),
+                color = Color.White.copy(alpha = 0.7f), // Un poco más tenue
+                fontSize = 12.sp
+            )
+        }
+    }
         }
 
 
 
 
-        if (!isUser) Spacer(modifier = Modifier.weight(1f))
-    }
 
-}
+

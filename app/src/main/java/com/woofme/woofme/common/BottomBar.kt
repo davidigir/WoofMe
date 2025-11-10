@@ -38,7 +38,7 @@ import com.woofme.woofme.viewmodel.ProfileViewModel
 @Composable
 fun BottomBar(navController: NavController) {
 
-    val items = listOf(BottomNavItem.Chats, BottomNavItem.Profile, BottomNavItem.Settings)
+    val items = listOf(BottomNavItem.Home, BottomNavItem.Chats, BottomNavItem.Profile, BottomNavItem.Settings)
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route

@@ -107,10 +107,9 @@ fun ProfileScreen(
     val context = LocalContext.current
 
     val options = UCrop.Options().apply {
-        setCircleDimmedLayer(true) // Hace que el área fuera del círculo sea opaca/oscura.
+        setCircleDimmedLayer(true)
 
-        // Opcional: Personalización de la interfaz
-        // ... otras opciones de UI
+
     }
 
 
@@ -130,7 +129,6 @@ fun ProfileScreen(
         if (result.resultCode == Activity.RESULT_OK && result.data != null) {
             val croppedUri = UCrop.getOutput(result.data!!)
             if (croppedUri != null) {
-                // 5. Pasar la URI final al ViewModel
 
                 viewModel.changeProfileImage(croppedUri.toString())
             }
@@ -158,7 +156,6 @@ fun ProfileScreen(
     ) { sourceUri ->
         if (sourceUri != null) {
 
-            // 🔥 CORRECCIÓN 2: Usar 'context' para acceder al caché
             val destinationUri = Uri.fromFile(File(context.cacheDir, "cropped_image_${System.currentTimeMillis()}.jpg"))
 
             val uCrop = UCrop.of(sourceUri, destinationUri)
@@ -166,7 +163,6 @@ fun ProfileScreen(
                 .withMaxResultSize(1000, 1000)
                 .withOptions(options)
 
-            // 🔥 CORRECCIÓN 3: Usar 'context' para obtener el Intent
             cropLauncherProfileImage.launch(uCrop.getIntent(context))
         }
     }
@@ -194,7 +190,10 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp) // altura fija de la cabecera
-                    .background(LightBlue)
+                    .background(
+                        color = LightBlue,
+                        shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+                    )
                     .padding(top = 10.dp, start = 10.dp, end = 10.dp)
             ) {
                 Column(
@@ -376,7 +375,7 @@ fun ProfileCircleImage(
             .offset(y = 64.dp)
             .size(150.dp)
             .clip(CircleShape)
-            .background(Color(171, 211, 250, 255)),
+            .background(LightBlue),
         contentAlignment = Alignment.Center
     ) {
         // Imagen circular
