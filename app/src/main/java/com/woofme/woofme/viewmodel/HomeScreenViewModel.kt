@@ -1,8 +1,12 @@
 package com.woofme.woofme.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.woofme.woofme.common.profiles
 import com.woofme.woofme.model.Profile
 import com.woofme.woofme.model.ProfileData
+import com.woofme.woofme.model.ProfileListContainer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,20 +19,20 @@ class HomeScreenViewModel: ViewModel(){
     private val _uiState = MutableStateFlow(HomeScreenUiState())
     val uiState: StateFlow<HomeScreenUiState> = _uiState.asStateFlow()
 
+    val gson = Gson()
+
     init{
         loadProfileDispay()
     }
 
+
+
     fun loadProfileDispay(){
         var initialProfile = ProfileData.getPreloadedProfile()
-        var list = emptyList<Profile>()
-        for(i in 0..3){
-            val profile = initialProfile.copy(id = initialProfile.id + i, name = initialProfile.name + i)
-            list = list + profile
 
-        }
-        _uiState.value = _uiState.value.copy(profileDetails = list)
+        val container = gson.fromJson(profiles, ProfileListContainer::class.java)
 
+        _uiState.value = _uiState.value.copy(profileDetails = container.profiles)
     }
 
 }

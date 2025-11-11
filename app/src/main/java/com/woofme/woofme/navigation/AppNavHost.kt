@@ -4,9 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.myapplication.screen.ChatDetailScreen
 import com.example.myapplication.screen.HomeScreen
 import com.example.myapplication.screen.ProfileScreen
@@ -26,7 +28,18 @@ fun AppNavHost(modifier: Modifier = Modifier, navController: NavHostController){
                 }
             )
         }
-        composable (ScreenRoutes.Profile){
+        composable (
+            ScreenRoutes.Profile,
+            arguments = listOf(
+                navArgument(ScreenRoutes.USER_ID){
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+
+            )
+        ){
+            backStackEntry ->
             ProfileScreen()
 
         }
@@ -38,7 +51,11 @@ fun AppNavHost(modifier: Modifier = Modifier, navController: NavHostController){
 
         }
         composable(ScreenRoutes.Home) {
-            HomeScreen()
+            HomeScreen(
+                onNavigateToProfile = { userId ->
+                    navController.navigate(ScreenRoutes.profileWithId(userId))
+                }
+            )
         }
 
 

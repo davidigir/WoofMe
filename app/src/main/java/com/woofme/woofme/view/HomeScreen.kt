@@ -3,6 +3,7 @@ package com.example.myapplication.screen
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,7 +51,8 @@ import com.woofme.woofme.viewmodel.HomeScreenViewModel
 @Preview
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier,
-               viewModel: HomeScreenViewModel = viewModel()
+               viewModel: HomeScreenViewModel = viewModel(),
+               onNavigateToProfile: (String) -> Unit
 
 ) {
 
@@ -73,7 +75,7 @@ fun HomeScreen(modifier: Modifier = Modifier,
 
         LazyColumn () {
             items(state.profileDetails) { profile ->
-                ProfileDisplay(profile)
+                ProfileDisplay(profile, onProfileClick = {userId->onNavigateToProfile(userId)})
             }
         }
 
@@ -83,11 +85,17 @@ fun HomeScreen(modifier: Modifier = Modifier,
 }
 
 @Composable
-fun ProfileDisplay(profile: Profile) {
+fun ProfileDisplay(profile: Profile, onProfileClick: (String) -> Unit) {
+    val clickedUserId = profile.id
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable{
+                onProfileClick(profile.id)
+
+
+            }
     ) {
         Column(
             modifier = Modifier

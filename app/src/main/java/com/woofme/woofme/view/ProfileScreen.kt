@@ -84,20 +84,21 @@ import com.woofme.woofme.viewmodel.ProfileViewModel
 import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.woofme.woofme.common.BottomBar
+import com.woofme.woofme.navigation.ScreenRoutes
 import com.woofme.woofme.ui.theme.DarkBlue
 import com.woofme.woofme.ui.theme.LightBlue
 import com.yalantis.ucrop.UCrop
 import java.io.File
 
 
-@Preview
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    viewModel: ProfileViewModel = viewModel()
+    viewModel: ProfileViewModel = viewModel(),
 ) {
 
 

@@ -1,9 +1,14 @@
 package com.woofme.woofme.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.google.gson.Gson
 import com.woofme.woofme.R
+import com.woofme.woofme.common.profiles
 import com.woofme.woofme.model.Profile
 import com.woofme.woofme.model.ProfileData
+import com.woofme.woofme.model.ProfileListContainer
+import com.woofme.woofme.navigation.ScreenRoutes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,13 +24,33 @@ data class ProfileUiState(
     val selectedItem: Int = 0
 )
 
-class ProfileViewModel : ViewModel() {
+class ProfileViewModel(
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+    //con esto pasamos el id del usuario del home a profile
+    private val targetUserId: String? = savedStateHandle.get<String>(ScreenRoutes.USER_ID)
+
+
 
     // Estado interno mutable (solo el ViewModel puede cambiarlo)
     private val _uiState = MutableStateFlow(ProfileUiState())
 
     // Estado público inmutable que observa la UI
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+
+    init{
+
+        //TODO Esto deberiamos cambiarlo para obtener los datos de la APi
+        val gson = Gson()
+        val container = gson.fromJson(profiles, ProfileListContainer::class.java)
+        val targetProfile: Profile? = container.profiles.find { it.id == targetUserId } ?: ProfileData.getPreloadedProfile()
+
+
+// Luego, actualizas el estado de forma segura:
+        _uiState.value = ProfileUiState(profile = targetProfile!!)
+
+
+    }
 
     fun toggleDialog(show: Boolean, index: Int? = null) {
         _uiState.update { it.copy(showDialog = show,
