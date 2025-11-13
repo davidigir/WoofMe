@@ -1,5 +1,6 @@
 package com.woofme.woofme.common
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -43,12 +44,45 @@ fun BottomBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+
+    val isViewingProfileDestination = currentRoute == ScreenRoutes.Profile
+
+
+    val isViewingOtherProfile = isViewingProfileDestination &&
+            navBackStackEntry?.arguments?.getString(ScreenRoutes.USER_ID) != null
+
+
     NavigationBar(
         modifier = Modifier.height(90.dp),
         containerColor = LightBlue,
     ) {
         items.forEach { item ->
-            val isSelected = currentRoute == item.route
+
+            val isSelected = when (item) {
+
+                BottomNavItem.Home -> {
+                    // SELECCIÓN DE INICIO:
+                    // 1. Si estamos viendo otro perfil (la excepción)
+                    // O
+                    // 2. Si la ruta actual coincide con Home.
+                    isViewingOtherProfile || currentRoute?.startsWith(item.route) == true
+                }
+
+                BottomNavItem.Profile -> {
+                    // SELECCIÓN DE PERFIL:
+                    // Solo se selecciona si estamos en el destino Profile Y el argumento es nulo (Mi Perfil).
+                    val isMyProfile = isViewingProfileDestination &&
+                            navBackStackEntry?.arguments?.getString(ScreenRoutes.USER_ID) == null
+
+                    isMyProfile
+                }
+                BottomNavItem.Chats -> {
+                    currentRoute == ScreenRoutes.ChatList || currentRoute?.startsWith(ScreenRoutes.ChatDetail) == true
+                }
+
+                // Para el resto de ítems (Chats, Settings), la lógica de ruta base sigue siendo válida.
+                else -> currentRoute?.startsWith(item.route) == true
+            }
 
             NavigationBarItem(
                 selected = isSelected,
@@ -61,7 +95,7 @@ fun BottomBar(navController: NavController) {
                                 saveState = true
                             }
                             launchSingleTop = true
-                            restoreState = true
+                            restoreState = false
                         }
                     }
                 },

@@ -82,6 +82,10 @@ import com.google.accompanist.placeholder.material.shimmer
 import com.woofme.woofme.R
 import com.woofme.woofme.viewmodel.ProfileViewModel
 import android.net.Uri
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.outlined.Create
+import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.lifecycle.SavedStateHandle
@@ -241,7 +245,8 @@ fun ProfileScreen(
                     imageUri = profile.profileImageRes,
                     onUpdateImageClick = {
                         galleryLauncherProfile.launch("image/*")
-                    }
+                    },
+                    isUserOwnProfile=uiState.isUserOwnProfile
                 )
 
             }
@@ -278,13 +283,18 @@ fun ProfileScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                item{
-                    ProfileAddImage(
-                        onAddImageClick = {
-                            galleryLauncher.launch("image/*")
-                        }
-                    )
+                if (uiState.isUserOwnProfile){
+                    item{
+                        ProfileAddImage(
+                            onAddImageClick = {
+                                galleryLauncher.launch("image/*")
+                            }
+                        )
+                    }
+                }else{
+
                 }
+
                 itemsIndexed(profile.images) { index, imageUri ->
 
 
@@ -363,7 +373,8 @@ fun CustomDialog(
 fun ProfileCircleImage(
     modifier: Modifier = Modifier,
     imageUri: String,
-    onUpdateImageClick: () -> Unit
+    onUpdateImageClick: () -> Unit,
+    isUserOwnProfile: Boolean
 
     ){
     val uri = remember(imageUri){Uri.parse(imageUri)}
@@ -392,7 +403,7 @@ fun ProfileCircleImage(
 
             // Icono de lápiz en la esquina inferior derecha
             Icon(
-                painter = painterResource(id = R.drawable.pencill), // tu icono Lucide (svg/vector)
+                imageVector = if (isUserOwnProfile) Icons.Outlined.Create else Icons.Outlined.PersonAdd,
                 contentDescription = "Editar",
                 modifier = Modifier
                     .align(Alignment.BottomEnd)

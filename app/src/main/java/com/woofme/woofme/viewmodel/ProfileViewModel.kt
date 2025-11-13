@@ -1,5 +1,6 @@
 package com.woofme.woofme.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
@@ -21,7 +22,8 @@ data class ProfileUiState(
 
     val dogs: List<Int> = List(15) { R.drawable.perro2 },
     val showDialog: Boolean = false,
-    val selectedItem: Int = 0
+    val selectedItem: Int = 0,
+    val isUserOwnProfile: Boolean = true
 )
 
 class ProfileViewModel(
@@ -44,10 +46,14 @@ class ProfileViewModel(
         val gson = Gson()
         val container = gson.fromJson(profiles, ProfileListContainer::class.java)
         val targetProfile: Profile? = container.profiles.find { it.id == targetUserId } ?: ProfileData.getPreloadedProfile()
+        val isUserOwnProfile = if (targetUserId == "{userId}") true else false
+        Log.d("ProfileViewModel", "targetUserId: $targetUserId")
 
 
 // Luego, actualizas el estado de forma segura:
-        _uiState.value = ProfileUiState(profile = targetProfile!!)
+        _uiState.value = ProfileUiState(profile = targetProfile!!,
+            isUserOwnProfile = isUserOwnProfile
+            )
 
 
     }
